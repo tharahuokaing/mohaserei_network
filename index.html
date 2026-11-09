@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>មហាសិរី Network (MSN) - អភិបាលកិច្ច និងរចនាសម្ព័ន្ធ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Khmer Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&display=swap" rel="stylesheet">
+
+    <!-- Inline CSS (style.css counterpart) -->
+    <style>
+        /* -------------------------------------------------------------
+           STYLE.CSS CODE SECTION
+           ------------------------------------------------------------- */
+        :root {
+            --primary-navy: #0f172a;
+            --secondary-navy: #1e293b;
+            --accent-gold: #d97706;
+            --accent-gold-light: #f59e0b;
+            --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            --navy-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            scroll-behavior: smooth;
+        }
+
+        .font-moul {
+            font-family: 'Moul', serif;
+        }
+
+        /* Glassmorphic Effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(217, 119, 6, 0.2);
+        }
+
+        /* Hero Background Overlay */
+        .hero-bg {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.96) 100%),
+                        url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070') center/cover no-repeat;
+        }
+
+        /* Gold Gradient Text */
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Organizational Chart Connectors */
+        .tree-line-v {
+            width: 2px;
+            background: linear-gradient(to bottom, #d97706, #cbd5e1);
+            margin: 0 auto;
+        }
+
+        .tree-line-h {
+            height: 2px;
+            background-color: #cbd5e1;
+            width: 100%;
+        }
+
+        /* Animated Hover Cards */
+        .org-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .org-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: var(--accent-gold);
+        }
+
+        /* Department Cards Glowing Border */
+        .dept-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dept-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-gold);
+            transition: all 0.3s ease;
+        }
+
+        .dept-card:hover::before {
+            width: 8px;
+        }
+
+        .dept-card:hover {
+            transform: scale(1.02);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d97706;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-amber-500 selection:text-white">
+
+    <!-- ==================== HEADER / NAVIGATION ==================== -->
+    <header class="sticky top-0 z-50 glass-dark text-white border-b border-amber-500/20 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo -->
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/30 ring-2 ring-amber-300/50">
+                        <i class="fa-solid fa-crown text-slate-900 text-2xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-moul text-lg sm:text-xl text-gold-gradient tracking-wide block">មហាសិរី Network</span>
+                        <span class="text-xs text-amber-200/70 tracking-wider font-sans uppercase">Mahasiri Network (MSN)</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-8 text-sm font-medium">
+                    <a href="#hero" class="hover:text-amber-400 transition-colors duration-200">ទំព័រដើម</a>
+                    <a href="#governance-structure" class="hover:text-amber-400 transition-colors duration-200">រចនាសម្ព័ន្ធអភិបាលកិច្ច</a>
+                    <a href="#departments" class="hover:text-amber-400 transition-colors duration-200">នាយកដ្ឋានទាំង ៥</a>
+                    <a href="#executive" class="hover:text-amber-400 transition-colors duration-200">គណៈកម្មាធិការប្រតិបត្តិ</a>
+                </nav>
+
+                <!-- Action Button -->
+                <div class="hidden sm:flex items-center space-x-4">
+                    <a href="#chart-view" class="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-lg shadow-md transition-all duration-300 flex items-center gap-2">
+                        <i class="fa-solid fa-sitemap"></i>
+                        <span>មើល diagram</span>
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" type="button" class="text-slate-300 hover:text-amber-400 focus:outline-none p-2 rounded-md">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-amber-500/20 px-4 pt-2 pb-6 space-y-3">
+            <a href="#hero" class="block text-slate-200 hover:text-amber-400 font-medium py-2">ទំព័រដើម</a>
+            <a href="#governance-structure" class="block text-slate-200 hover:text-amber-400 font-medium py-2">រចនាសម្ព័ន្ធអភិបាលកិច្ច</a>
+            <a href="#departments" class="block text-slate-200 hover:text-amber-400 font-medium py-2">នាយកដ្ឋានទាំង ៥</a>
+            <a href="#executive" class="block text-slate-200 hover:text-amber-400 font-medium py-2">គណៈកម្មាធិការប្រតិបត្តិ</a>
+        </div>
+    </header>
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section id="hero" class="hero-bg py-20 lg:py-32 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm font-medium mb-6">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>ប្រព័ន្ធគ្រប់គ្រង និងអភិបាលកិច្ចសាជីវកម្ម</span>
+            </div>
+            <h1 class="font-moul text-3xl sm:text-5xl lg:text-6xl text-slate-100 leading-relaxed sm:leading-relaxed mb-6">
+                មហាសិរី Network <span class="text-gold-gradient font-sans font-bold">(MSN)</span>
+            </h1>
+            <p class="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed mb-10">
+                រចនាសម្ព័ន្ធដឹកនាំប្រកបដោយតម្លាភាព គណនេយ្យភាព និងប្រសិទ្ធភាពខ្ពស់ ក្នុងការតម្រង់ទិសយុទ្ធសាស្ត្រដើម្បីភាពជោគជ័យប្រកបដោយចីរភាពរបស់ម្ចាស់ភាគហ៊ុន និងដៃគូពាក់ព័ន្ធទាំងអស់។
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#governance-structure" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all duration-300 flex items-center gap-3">
+                    <span>ពិនិត្យមើលរចនាសម្ព័ន្ធ</span>
+                    <i class="fa-solid fa-arrow-down"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Decorative Bottom Curve -->
+        <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-50 to-transparent"></div>
+    </section>
+
+    <!-- ==================== GOVERNANCE OVERVIEW / CORE HIERARCHY ==================== -->
+    <section id="governance-structure" class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">Structure Hierarchy</h2>
+            <h3 class="font-moul text-2xl sm:text-3xl text-slate-900 leading-normal">ឋានានុក្រមនៃរចនាសម្ព័ន្ធអភិបាលកិច្ច</h3>
+            <div class="w-20 h-1 bg-amber-500 mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <!-- 3 Core Levels Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Level 1: Shareholders -->
+            <div class="org-card bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl relative flex flex-col justify-between">
+                <div>
+                    <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-6 shadow-inner">
+                        <i class="fa-solid fa-users-rectangle"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase">កម្រិតកំពូល</span>
+                    <h4 class="font-moul text-xl text-slate-900 mt-3 mb-3">ម្ចាស់ភាគហ៊ុន (Shareholder)</h4>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        ជាអង្គប្រជុំកំពូល និងជាម្ចាស់កម្មសិទ្ធិដែលមានអំណាចសម្រេចលើគោលនយោបាយធំៗ ការសម្រេចចិត្តយុទ្ធសាស្ត្រ និងការជ្រើសរើសសមាសភាពក្រុមប្រឹក្សាភិបាល។
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-semibold flex justify-between items-center">
+                    <span>Convenience Level</span>
+                    <i class="fa-solid fa-crown text-amber-500"></i>
+                </div>
+            </div>
+
+            <!-- Level 2: Board of Directors -->
+            <div class="org-card bg-slate-900 text-white rounded-2xl p-8 border border-amber-500/30 shadow-xl relative flex flex-col justify-between ring-2 ring-amber-500/20">
+                <div>
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center text-2xl mb-6 shadow-lg shadow-amber-500/30">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <span class="text-xs font-bold text-slate-950 bg-amber-400 px-3 py-1 rounded-full uppercase">កម្រិតដឹកនាំយុទ្ធសាស្ត្រ</span>
+                    <h4 class="font-moul text-xl text-amber-400 mt-3 mb-3">ក្រុមប្រឹក្សាភិបាល (Board Members)</h4>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        ទទួលបន្ទុកតម្រង់ទិស គ្រប់គ្រងលើការប្រតិបត្តិទូទៅ និងត្រួតពិនិត្យលើនាយកដ្ឋានជំនាញទាំង ៥ ដើម្បីធានាឱ្យបាននូវការរីកចម្រើនប្រកបដោយចីរភាព។
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-amber-300 font-semibold flex justify-between items-center">
+                    <span>5 Core Departments</span>
+                    <i class="fa-solid fa-layer-group text-amber-400"></i>
+                </div>
+            </div>
+
+            <!-- Level 3: Executive Committee -->
+            <div class="org-card bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl relative flex flex-col justify-between">
+                <div>
+                    <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-6 shadow-inner">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase">កម្រិតប្រតិបត្តិការ</span>
+                    <h4 class="font-moul text-xl text-slate-900 mt-3 mb-3">គណៈកម្មាធិការប្រតិបត្តិ</h4>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        ទទួលខុសត្រូវលើការអនុវត្តផែនការសកម្មភាពប្រចាំថ្ងៃ ដឹកនាំក្រុមការងារ និងប្រែក្លាយយុទ្ធសាស្ត្ររបស់ក្រុមប្រឹក្សាភិបាលឱ្យទៅជាលទ្ធផលជាក់ស្តែង។
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-semibold flex justify-between items-center">
+                    <span>Executive Operations</span>
+                    <i class="fa-solid fa-gears text-amber-500"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== INTERACTIVE ORGANIZATIONAL CHART DIAGRAM ==================== -->
+    <section id="chart-view" class="py-16 bg-slate-900 text-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-amber-400 mb-2">Visual Diagram</h2>
+                <h3 class="font-moul text-2xl sm:text-3xl text-slate-100">ដ្យាក្រាមរចនាសម្ព័ន្ធស្ថាប័ន MSN</h3>
+                <p class="text-slate-400 text-sm mt-2">ចុចលើផ្នែកនីមួយៗដើម្បីមើលព័ត៌មានលម្អិតបន្ថែម</p>
+            </div>
+
+            <!-- Interactive Tree Structure Wrapper -->
+            <div class="overflow-x-auto pb-8 pt-4">
+                <div class="min-w-[850px] flex flex-col items-center">
+                    
+                    <!-- Top Level: Shareholder -->
+                    <div onclick="openModal('shareholder')" class="cursor-pointer bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-bold px-8 py-4 rounded-xl shadow-lg hover:brightness-110 transition-transform transform hover:-translate-y-1 flex items-center gap-3">
+                        <i class="fa-solid fa-users text-xl"></i>
+                        <div class="text-left">
+                            <div class="text-xs uppercase tracking-wider text-slate-900 font-extrabold">Shareholder / Convenience Level</div>
+                            <div class="font-moul text-lg">ម្ចាស់ភាគហ៊ុន (Shareholder)</div>
+                        </div>
+                    </div>
+
+                    <!-- Vertical Line Connector -->
+                    <div class="w-0.5 h-10 bg-amber-500"></div>
+
+                    <!-- Middle Level: Board of Directors -->
+                    <div onclick="openModal('board')" class="cursor-pointer bg-slate-800 border-2 border-amber-500 text-amber-400 font-bold px-10 py-5 rounded-2xl shadow-xl hover:bg-slate-750 transition-transform transform hover:-translate-y-1 flex items-center gap-4">
+                        <i class="fa-solid fa-landmark text-2xl"></i>
+                        <div class="text-left">
+                            <div class="text-xs uppercase tracking-wider text-slate-400">Governance Tier</div>
+                            <div class="font-moul text-xl text-white">ក្រុមប្រឹក្សាភិបាល (Board Members)</div>
+                        </div>
+                    </div>
+
+                    <!-- Vertical Line Splitter -->
+                    <div class="w-0.5 h-10 bg-amber-500"></div>
+
+                    <!-- Horizontal Connector Bar for 5 Departments -->
+                    <div class="w-[80%] h-0.5 bg-amber-500/50 relative">
+                        <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-amber-500"></div>
+                    </div>
+
+                    <!-- Vertical Drops for 5 Departments -->
+                    <div class="w-[80%] flex justify-between">
+                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
+                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
+                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
+                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
+                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
+                    </div>
+
+                    <!-- 5 Core Departments Grid -->
+                    <div class="w-full grid grid-cols-5 gap-3">
+                        <!-- Dept 1 -->
+                        <div onclick="openModal('audit')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
+                                <i class="fa-solid fa-magnifying-glass-chart"></i>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានសវនកម្ម</div>
+                            <div class="text-[10px] text-slate-400">Audit Dept</div>
+                        </div>
+
+                        <!-- Dept 2 -->
+                        <div onclick="openModal('management')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
+                                <i class="fa-solid fa-compass"></i>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានគ្រប់គ្រង និងដឹកនាំ</div>
+                            <div class="text-[10px] text-slate-400">Management & Leadership</div>
+                        </div>
+
+                        <!-- Dept 3 -->
+                        <div onclick="openModal('discipline')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានផ្នែកវិន័យ</div>
+                            <div class="text-[10px] text-slate-400">Discipline Dept</div>
+                        </div>
+
+                        <!-- Dept 4 -->
+                        <div onclick="openModal('finance')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានអភិវឌ្ឍន៍ និងហិរញ្ញវត្ថុ</div>
+                            <div class="text-[10px] text-slate-400">Dev & Finance</div>
+                        </div>
+
+                        <!-- Dept 5 -->
+                        <div onclick="openModal('training')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានបណ្តុះបណ្តាល</div>
+                            <div class="text-[10px] text-slate-400">Training Dept</div>
+                        </div>
+                    </div>
+
+                    <!-- Vertical Line to Executive -->
+                    <div class="w-0.5 h-10 bg-amber-500/50 mt-2"></div>
+
+                    <!-- Bottom Level: Executive Committee -->
+                    <div onclick="openModal('executive')" class="cursor-pointer bg-slate-800 border border-slate-700 text-slate-200 font-bold px-8 py-3.5 rounded-xl shadow-lg hover:border-amber-400 transition-transform transform hover:-translate-y-1 flex items-center gap-3">
+                        <i class="fa-solid fa-network-wired text-amber-400"></i>
+                        <div class="text-left">
+                            <div class="font-moul text-base">គណៈកម្មាធិការប្រតិបត្តិ (Executive Committee)</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 5 CORE DEPARTMENTS DETAIL SECTION ==================== -->
+    <section id="departments" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">Board Oversight</h2>
+            <h3 class="font-moul text-2xl sm:text-3xl text-slate-900">នាយកដ្ឋានទាំង ៥ ក្រោមក្រុមប្រឹក្សាភិបាល</h3>
+            <p class="text-slate-600 text-sm mt-3">
+                ដើម្បីធានាបាននូវការដឹកនាំប្រកបដោយប្រសិទ្ធភាព និងចក្្ខុវិស័យច្បាស់លាស់ ក្រុមប្រឹក្សាភិបាលបានបែងចែកជា ៥ នាយកដ្ឋានជំនាញ៖
+            </p>
+            <div class="w-20 h-1 bg-amber-500 mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- 1. Audit Department -->
+            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                </div>
+                <h4 class="font-moul text-lg text-slate-900 mb-3">១. នាយកដ្ឋានសវនកម្ម</h4>
+                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Audit Department</p>
+                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                    ទទួលខុសត្រូវលើការត្រួតពិនិត្យផ្ទៃក្នុង វាយតម្លៃហានិភ័យ និងធានាថារាល់ប្រតិបត្តិការទាំងអស់អនុវត្តទៅតាមច្បាប់ បទបញ្ជាផ្ទៃក្នុង និងបទដ្ឋានគណនេយ្យ។
+                </p>
+                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> សវនកម្មហិរញ្ញវត្ថុ និងប្រតិបត្តិការ</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការវាយតម្លៃ និងគ្រប់គ្រងហានិភ័យ</li>
+                </ul>
+            </div>
+
+            <!-- 2. Management & Leadership Department -->
+            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
+                    <i class="fa-solid fa-compass"></i>
+                </div>
+                <h4 class="font-moul text-lg text-slate-900 mb-3">២. នាយកដ្ឋានគ្រប់គ្រងនិងដឹកនាំ</h4>
+                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Management & Leadership Dept</p>
+                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                    រៀបចំគោលនយោបាយយុទ្ធសាស្ត្រ ណែនាំទិសដៅការងារ និងត្រួតពិនិត្យការអនុវត្តការងាររបស់គណៈកម្មាធិការប្រតិបត្តិឱ្យសម្រេចបានតាមគោលដៅស្ថាប័ន។
+                </p>
+                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការកំណត់ទិសដៅយុទ្ធសាស្ត្រ</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការតាមដានការអនុវត្តការងារ (KPIs)</li>
+                </ul>
+            </div>
+
+            <!-- 3. Discipline Department -->
+            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                <h4 class="font-moul text-lg text-slate-900 mb-3">៣. នាយកដ្ឋានផ្នែកវិន័យ</h4>
+                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Discipline Department</p>
+                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                    ពង្រឹងកតព្វកិច្ច បទបញ្ជាផ្ទៃក្នុង ក្រមសីលធម៌វិជ្ជាជីវៈ និងធានានូវបរិយាកាសការងារប្រកបដោយតម្លាភាព យុត្តិធម៌ និងភាពស្មោះត្រង់។
+                </p>
+                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការពង្រឹងក្រមសីលធម៌ និងវិន័យ</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការដោះស្រាយវិវាទផ្ទៃក្នុង</li>
+                </ul>
+            </div>
+
+            <!-- 4. Development & Finance Department -->
+            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <h4 class="font-moul text-lg text-slate-900 mb-3">៤. នាយកដ្ឋានអភិវឌ្ឍន៍និងហិរញ្ញវត្ថុ</h4>
+                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Development & Finance Dept</p>
+                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                    គ្រប់គ្រងផែនការថវិកា ស្វែងរកឱកាសវិនិយោគថ្មីៗ ព្រមទាំងរៀបចំផែនការអភិវឌ្ឍន៍អាជីវកម្មមហាសិរី Network ឱ្យមានការរីកចម្រើនជាစဉ်ដរាប។
+                </p>
+                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការគ្រប់គ្រងហិរញ្ញវត្ថុ និងវិនិយោគ</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ផែនការអភិវឌ្ឍន៍ និងការពង្រីកដែនសេវា</li>
+                </ul>
+            </div>
+
+            <!-- 5. Training Department -->
+            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200 md:col-span-2 lg:col-span-1">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h4 class="font-moul text-lg text-slate-900 mb-3">៥. នាយកដ្ឋានបណ្តុះបណ្តាល</h4>
+                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Training Department</p>
+                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                    បង្កើតវគ្គបណ្តុះបណ្តាល ប៉ិនប្រសប់ការងារ និងបង្កើនសមត្ថភាពដល់ថ្នាក់ដឹកនាំ និងបុគ្គលិកគ្រប់កម្រិតដើម្បីឆ្លើយតបនឹងការវិវឌ្ឍនៃទីផ្សារ។
+                </p>
+                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> កម្មវិធីអភិវឌ្ឍន៍សមត្ថភាពបុគ្គលិក</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការសិក្ខាសាលានិងវគ្គសិក្សាឯកទេស</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== EXECUTIVE COMMITTEE SECTION ==================== -->
+    <section id="executive" class="py-16 bg-slate-100 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 sm:p-12 text-white shadow-xl relative overflow-hidden">
+                <div class="max-w-3xl relative z-10">
+                    <span class="text-xs font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">Executive Arm</span>
+                    <h3 class="font-moul text-2xl sm:text-3xl text-white mt-4 mb-4">គណៈកម្មាធិការប្រតិបត្តិ (Executive Committee)</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                        គណៈកម្មាធិការប្រតិបត្តិ គឺជាដែនដីប្រតិបត្តិការផ្ទាល់ដែលទទួលខុសត្រូវក្នុងការបកប្រែគោលនយោបាយ និងយុទ្ធសាស្ត្ររបស់ក្រុមប្រឹក្សាភិបាលឱ្យទៅជាសកម្មភាពជាក់ស្តែង ធានាឱ្យសហគ្រាសដំណើរការទៅដោយរលូន ឆ្លើយតបទាន់ពេលវេលា និងទទួលបានលទ្ធផលល្អប្រសើរ។
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-amber-300">
+                        <div class="flex items-center gap-2 bg-slate-800/80 p-3 rounded-lg border border-slate-700">
+                            <i class="fa-solid fa-chart-pie text-amber-400"></i>
+                            <span>ប្រតិបត្តិការប្រចាំថ្ងៃ</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-800/80 p-3 rounded-lg border border-slate-700">
+                            <i class="fa-solid fa-bullseye text-amber-400"></i>
+                            <span>ការសម្រេចគោលដៅ KPIs</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-800/80 p-3 rounded-lg border border-slate-700">
+                            <i class="fa-solid fa-diagram-project text-amber-400"></i>
+                            <span>គ្រប់គ្រងគម្រោងជាក់ស្តែង</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-xl">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <span class="font-moul text-lg text-slate-200 block">មហាសិរី Network (MSN)</span>
+                        <span class="text-xs text-slate-500">Mahasiri Network Corporate Governance</span>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 text-center md:text-right">
+                    &copy; 2026 មហាសិរី Network (MSN). រក្សាសិទ្ធិគ្រប់យ៉ាង។
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== DETAILS MODAL ==================== -->
+    <div id="info-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative animate-fade-in">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modal-content">
+                <!-- Dynamic Content Injected Here via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT SECTION (script.js counterpart) ==================== -->
+    <script>
+        /* -------------------------------------------------------------
+           SCRIPT.JS CODE SECTION
+           ------------------------------------------------------------- */
+        
+        // Mobile Menu Toggle Logic
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Modal Content Data Store
+        const modalData = {
+            shareholder: {
+                title: 'ម្ចាស់ភាគហ៊ុន (Shareholder / Convenience Level)',
+                subtitle: 'កម្រិតអំណាចកំពូលនៃស្ថាប័ន',
+                icon: 'fa-users-rectangle',
+                body: 'ម្ចាស់ភាគហ៊ុនគឺជាម្ចាស់កម្មសិទ្ធិនៃ មហាសិរី Network (MSN)។ មានសិទ្ធិអំណាចក្នុងការសម្រេចចិត្តលើរបៀបវារៈសំខាន់ៗ ដូចជាការអនុម័តរបាយការណ៍ហិរញ្ញវត្ថុប្រចាំឆ្នាំ ការបែងចែកប្រាក់ចំណេញ ការតែងតាំង ឬដកតំណែងសមាជិកក្រុមប្រឹក្សាភិបាល និងការកែប្រែប្រកាសនីយបត្រក្រុមហ៊ុន។'
+            },
+            board: {
+                title: 'ក្រុមប្រឹក្សាភិបាល (Board Members)',
+                subtitle: 'អង្គភាពដឹកនាំយុទ្ធសាស្ត្រ និងតម្រង់ទិស',
+                icon: 'fa-landmark',
+                body: 'ក្រុមប្រឹក្សាភិបាលទទួលបន្ទុកកំណត់ចក្ខុវិស័យ បេសកកម្ម និងយុទ្ធសាស្ត្រវែងឆ្ងាយរបស់ក្រុមហ៊ុន។ ក្រុមប្រឹក្សាភិបាលត្រូវត្រួតពិនិត្យផ្ទាល់លើ នាយកដ្ឋានសវនកម្ម, នាយកដ្ឋានគ្រប់គ្រងនិងដឹកនាំ, នាយកដ្ឋានផ្នែកវិន័យ, នាយកដ្ឋានអភិវឌ្ឍន៍និងហិរញ្ញវត្ថុ និងនាយកដ្ឋានបណ្តុះបណ្តាល។'
+            },
+            audit: {
+                title: 'នាយកដ្ឋានសវនកម្ម (Audit Department)',
+                subtitle: 'ការត្រួតពិនិត្យ និងវាយតម្លៃផ្ទៃក្នុង',
+                icon: 'fa-magnifying-glass-chart',
+                body: 'នាយកដ្ឋាននេះមាននាទីឯករាជ្យក្នុងការត្រួតពិនិត្យរាល់ប្រតិបត្តិការ ហិរញ្ញវត្ថុ ច្បាប់ និងបទដ្ឋានបច្ចេកទេស ដើម្បីធានាថាក្រុមហ៊ុនគ្មានហានិភ័យ និងដំណើរការដោយតម្លាភាពខ្ពស់បំផុត។'
+            },
+            management: {
+                title: 'នាយកដ្ឋានគ្រប់គ្រងនិងដឹកនាំ',
+                subtitle: 'Management & Leadership Department',
+                icon: 'fa-compass',
+                body: 'ទទួលខុសត្រូវលើការណែនាំទិសដៅការងារ ការរៀបចំរចនាសម្ព័ន្ធផ្ទៃក្នុង ការប្រគល់ភារកិច្ច និងការតាមដានការអនុវត្តការងាររបស់គណៈកម្មាធិការប្រតិបត្តិ។'
+            },
+            discipline: {
+                title: 'នាយកដ្ឋានផ្នែកវិន័យ (Discipline Department)',
+                subtitle: 'ការពង្រឹងវិន័យ និងក្រមសីលធម៌',
+                icon: 'fa-scale-balanced',
+                body: 'ធានានូវការអនុវត្តបទបញ្ជាផ្ទៃក្នុងស្ថាប័នយ៉ាងម៉ឺងម៉ាត់ រក្សាសុជីវធម៌វិជ្ជាជីវៈ និងដោះស្រាយរាល់វិវាទផ្ទៃក្នុងប្រកបដោយយុត្តិធម៌។'
+            },
+            finance: {
+                title: 'នាយកដ្ឋានអភិវឌ្ឍន៍និងហិរញ្ញវត្ថុ',
+                subtitle: 'Development & Finance Department',
+                icon: 'fa-chart-line',
+                body: 'ទទួលបន្ទុកគ្រប់គ្រងទុន ថវិកា វិនិយោគ និងការរៀបចំផែនការអភិវឌ្ឍន៍ពង្រីកវិសាលភាពអាជីវកម្មរបស់ មហាសិរី Network ឱ្យមានស្ថិរភាព និងកំណើនជាបន្តបន្ទាប់។'
+            },
+            training: {
+                title: 'នាយកដ្ឋានបណ្តុះបណ្តាល (Training Department)',
+                subtitle: 'ការអភិវឌ្ឍធនធានមនុស្ស',
+                icon: 'fa-graduation-cap',
+                body: 'រៀបចំកម្មវិធីសិក្ខាសាលា វគ្គបណ្តុះបណ្តាលសមត្ថភាព ប៉ិនប្រសប់ការងារ និងពង្រឹងជំនាញដឹកនាំដល់បុគ្គលិកគ្រប់ជាន់ថ្នាក់។'
+            },
+            executive: {
+                title: 'គណៈកម្មាធិការប្រតិបត្តិ (Executive Committee)',
+                subtitle: 'ក្រុមការងារអនុវត្តប្រតិបត្តិការផ្ទាល់',
+                icon: 'fa-network-wired',
+                body: 'ជាសមាសភាគដឹកនាំប្រតិបត្តិការប្រចាំថ្ងៃ ទទួលបញ្ជា និងទិសដៅពីក្រុមប្រឹក្សាភិបាល ដើម្បីដឹកនាំក្រុមការងារបច្ចេកទេសឱ្យសម្រេចបាននូវផែនការសកម្មភាព និងគោលដៅស្ថាប័ន។'
+            }
+        };
+
+        // Modal Handler Functions
+        function openModal(key) {
+            const data = modalData[key];
+            if (!data) return;
+
+            const modalContent = document.getElementById('modal-content');
+            modalContent.innerHTML = `
+                <div class="flex items-center gap-3 mb-4 text-amber-600">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-lg">
+                        <i class="fa-solid ${data.icon}"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-moul text-lg text-slate-900">${data.title}</h3>
+                        <p class="text-xs text-slate-500 font-sans">${data.subtitle}</p>
+                    </div>
+                </div>
+                <div class="w-full h-px bg-slate-100 my-3"></div>
+                <p class="text-sm text-slate-600 leading-relaxed font-sans mb-6">
+                    ${data.body}
+                </p>
+                <div class="flex justify-end">
+                    <button onclick="closeModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-5 py-2.5 rounded-lg transition-colors">
+                        បិទ (Close)
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('info-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('info-modal').classList.add('hidden');
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('info-modal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+    <script src="ultra_secure_mode.js"></script>
+</body>
+</html>
