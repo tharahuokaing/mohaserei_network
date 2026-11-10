@@ -3,653 +3,1019 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>មហាសិរី Network (MSN) - អភិបាលកិច្ច និងរចនាសម្ព័ន្ធ</title>
+    <title>MSN Core Member System V1.0 - Technical Implementation Prototype</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts for Khmer Typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Moul&display=swap" rel="stylesheet">
+    <!-- Khmer & English Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Moul&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-    <!-- Inline CSS (style.css counterpart) -->
+    <!-- ====================================================================
+         STYLE.CSS - CUSTOM STYLES & DESIGN TOKENS
+         ==================================================================== -->
     <style>
-        /* -------------------------------------------------------------
-           STYLE.CSS CODE SECTION
-           ------------------------------------------------------------- */
         :root {
-            --primary-navy: #0f172a;
-            --secondary-navy: #1e293b;
-            --accent-gold: #d97706;
-            --accent-gold-light: #f59e0b;
-            --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-            --navy-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --msn-navy: #0f172a;
+            --msn-navy-light: #1e293b;
+            --msn-gold: #d97706;
+            --msn-gold-light: #f59e0b;
         }
 
         body {
             font-family: 'Kantumruy Pro', sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
-            scroll-behavior: smooth;
+            background-color: #f1f5f9;
+            color: #1e293b;
         }
 
-        .font-moul {
-            font-family: 'Moul', serif;
+        .font-moul { font-family: 'Moul', serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d97706; }
 
         /* Glassmorphic Effects */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.9);
+        .glass-header {
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
         }
 
-        .glass-dark {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(217, 119, 6, 0.2);
+        /* Ledger Table Highlight */
+        .ledger-row-earn { border-left: 4px solid #10b981; }
+        .ledger-row-deduct { border-left: 4px solid #ef4444; }
+        .ledger-row-adjust { border-left: 4px solid #3b82f6; }
+        .ledger-row-reverse { border-left: 4px solid #f59e0b; }
+
+        /* Active Navigation Tab */
+        .nav-tab-active {
+            background-color: rgba(217, 119, 6, 0.15);
+            color: #fbbf24;
+            border-bottom: 2px solid #f59e0b;
         }
 
-        /* Hero Background Overlay */
-        .hero-bg {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.96) 100%),
-                        url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070') center/cover no-repeat;
-        }
-
-        /* Gold Gradient Text */
-        .text-gold-gradient {
-            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Organizational Chart Connectors */
-        .tree-line-v {
-            width: 2px;
-            background: linear-gradient(to bottom, #d97706, #cbd5e1);
-            margin: 0 auto;
-        }
-
-        .tree-line-h {
-            height: 2px;
-            background-color: #cbd5e1;
-            width: 100%;
-        }
-
-        /* Animated Hover Cards */
-        .org-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .org-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-color: var(--accent-gold);
-        }
-
-        /* Department Cards Glowing Border */
-        .dept-card {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dept-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--accent-gold);
-            transition: all 0.3s ease;
-        }
-
-        .dept-card:hover::before {
+        /* Pulsing Status Dot */
+        .status-dot {
             width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
         }
-
-        .dept-card:hover {
-            transform: scale(1.02);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #d97706;
-        }
+        .status-active { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+        .status-pending { background-color: #f59e0b; }
+        .status-suspended { background-color: #ef4444; }
     </style>
 </head>
-<body class="antialiased selection:bg-amber-500 selection:text-white">
+<body class="antialiased min-h-screen flex flex-col selection:bg-amber-500 selection:text-white">
 
-    <!-- ==================== HEADER / NAVIGATION ==================== -->
-    <header class="sticky top-0 z-50 glass-dark text-white border-b border-amber-500/20 shadow-lg">
+    <!-- ====================================================================
+         INDEX.HTML - MAIN SYSTEM LAYOUT & DASHBOARD MODULES
+         ==================================================================== -->
+    
+    <!-- Top System Navigation Bar -->
+    <header class="glass-header text-white sticky top-0 z-40 border-b border-amber-500/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <!-- Brand Logo -->
+                <!-- System Identity -->
                 <div class="flex items-center space-x-3 space-x-reverse">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/30 ring-2 ring-amber-300/50">
-                        <i class="fa-solid fa-crown text-slate-900 text-2xl"></i>
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/20 ring-2 ring-amber-300/40">
+                        <i class="fa-solid fa-layer-group text-slate-950 text-xl"></i>
                     </div>
                     <div>
-                        <span class="font-moul text-lg sm:text-xl text-gold-gradient tracking-wide block">មហាសិរី Network</span>
-                        <span class="text-xs text-amber-200/70 tracking-wider font-sans uppercase">Mahasiri Network (MSN)</span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-moul text-lg text-amber-400 tracking-wide">មហាសិរី MSN</span>
+                            <span class="bg-amber-500/20 text-amber-300 text-[10px] font-mono font-semibold px-2 py-0.5 rounded border border-amber-500/30">Core V1.0 MVP</span>
+                        </div>
+                        <span class="text-xs text-slate-400 font-mono">Technical Specification by H.E Mend Mony</span>
                     </div>
                 </div>
 
-                <!-- Desktop Navigation -->
-                <nav class="hidden md:flex space-x-8 text-sm font-medium">
-                    <a href="#hero" class="hover:text-amber-400 transition-colors duration-200">ទំព័រដើម</a>
-                    <a href="#governance-structure" class="hover:text-amber-400 transition-colors duration-200">រចនាសម្ព័ន្ធអភិបាលកិច្ច</a>
-                    <a href="#departments" class="hover:text-amber-400 transition-colors duration-200">នាយកដ្ឋានទាំង ៥</a>
-                    <a href="#executive" class="hover:text-amber-400 transition-colors duration-200">គណៈកម្មាធិការប្រតិបត្តិ</a>
-                </nav>
-
-                <!-- Action Button -->
-                <div class="hidden sm:flex items-center space-x-4">
-                    <a href="#chart-view" class="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-lg shadow-md transition-all duration-300 flex items-center gap-2">
-                        <i class="fa-solid fa-sitemap"></i>
-                        <span>មើល diagram</span>
-                    </a>
+                <!-- Live System Counter Badges -->
+                <div class="hidden lg:flex items-center gap-6 text-xs font-mono">
+                    <div class="bg-slate-800/80 px-3.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
+                        <span class="text-slate-400">Db Architecture:</span>
+                        <span class="text-amber-400 font-bold">Modular Monolith</span>
+                    </div>
+                    <div class="bg-slate-800/80 px-3.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
+                        <span class="text-slate-400">Identity Mode:</span>
+                        <span class="text-emerald-400 font-bold">1 Person = 1 ID</span>
+                    </div>
+                    <div class="bg-slate-800/80 px-3.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
+                        <span class="text-slate-400">Total Members:</span>
+                        <span id="badge-total-members" class="text-white font-bold">0</span>
+                    </div>
                 </div>
 
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-btn" type="button" class="text-slate-300 hover:text-amber-400 focus:outline-none p-2 rounded-md">
-                        <i class="fa-solid fa-bars text-2xl"></i>
+                <!-- Primary System Tabs Nav -->
+                <nav class="flex space-x-1 sm:space-x-2 text-xs font-medium">
+                    <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab-active px-3 py-2 rounded-t-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span class="hidden sm:inline">ផ្ទាំងបញ្ជា</span> (Dashboard)
                     </button>
-                </div>
+                    <button onclick="switchTab('members')" id="tab-members" class="text-slate-300 hover:text-amber-400 px-3 py-2 rounded-t-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-users"></i>
+                        <span class="hidden sm:inline">សមាជិក</span> (Members)
+                    </button>
+                    <button onclick="switchTab('points')" id="tab-points" class="text-slate-300 hover:text-amber-400 px-3 py-2 rounded-t-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-coins"></i>
+                        <span class="hidden sm:inline">ពិន្ទុ</span> (Point Ledger)
+                    </button>
+                    <button onclick="switchTab('referral')" id="tab-referral" class="text-slate-300 hover:text-amber-400 px-3 py-2 rounded-t-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-sitemap"></i>
+                        <span class="hidden sm:inline">បណ្តាញ</span> (Referral)
+                    </button>
+                    <button onclick="switchTab('audit')" id="tab-audit" class="text-slate-300 hover:text-amber-400 px-3 py-2 rounded-t-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span class="hidden sm:inline">សវនកម្ម</span> (Audit Logs)
+                    </button>
+                </nav>
             </div>
-        </div>
-
-        <!-- Mobile Menu Dropdown -->
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-amber-500/20 px-4 pt-2 pb-6 space-y-3">
-            <a href="#hero" class="block text-slate-200 hover:text-amber-400 font-medium py-2">ទំព័រដើម</a>
-            <a href="#governance-structure" class="block text-slate-200 hover:text-amber-400 font-medium py-2">រចនាសម្ព័ន្ធអភិបាលកិច្ច</a>
-            <a href="#departments" class="block text-slate-200 hover:text-amber-400 font-medium py-2">នាយកដ្ឋានទាំង ៥</a>
-            <a href="#executive" class="block text-slate-200 hover:text-amber-400 font-medium py-2">គណៈកម្មាធិការប្រតិបត្តិ</a>
         </div>
     </header>
 
-    <!-- ==================== HERO SECTION ==================== -->
-    <section id="hero" class="hero-bg py-20 lg:py-32 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm font-medium mb-6">
-                <i class="fa-solid fa-shield-halved"></i>
-                <span>ប្រព័ន្ធគ្រប់គ្រង និងអភិបាលកិច្ចសាជីវកម្ម</span>
-            </div>
-            <h1 class="font-moul text-3xl sm:text-5xl lg:text-6xl text-slate-100 leading-relaxed sm:leading-relaxed mb-6">
-                មហាសិរី Network <span class="text-gold-gradient font-sans font-bold">(MSN)</span>
-            </h1>
-            <p class="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed mb-10">
-                រចនាសម្ព័ន្ធដឹកនាំប្រកបដោយតម្លាភាព គណនេយ្យភាព និងប្រសិទ្ធភាពខ្ពស់ ក្នុងការតម្រង់ទិសយុទ្ធសាស្ត្រដើម្បីភាពជោគជ័យប្រកបដោយចីរភាពរបស់ម្ចាស់ភាគហ៊ុន និងដៃគូពាក់ព័ន្ធទាំងអស់។
-            </p>
-            <div class="flex flex-wrap justify-center gap-4">
-                <a href="#governance-structure" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all duration-300 flex items-center gap-3">
-                    <span>ពិនិត្យមើលរចនាសម្ព័ន្ធ</span>
-                    <i class="fa-solid fa-arrow-down"></i>
-                </a>
-            </div>
-        </div>
+    <!-- Main Workspace Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- Decorative Bottom Curve -->
-        <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-50 to-transparent"></div>
-    </section>
-
-    <!-- ==================== GOVERNANCE OVERVIEW / CORE HIERARCHY ==================== -->
-    <section id="governance-structure" class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">Structure Hierarchy</h2>
-            <h3 class="font-moul text-2xl sm:text-3xl text-slate-900 leading-normal">ឋានានុក្រមនៃរចនាសម្ព័ន្ធអភិបាលកិច្ច</h3>
-            <div class="w-20 h-1 bg-amber-500 mx-auto mt-4 rounded-full"></div>
-        </div>
-
-        <!-- 3 Core Levels Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Level 1: Shareholders -->
-            <div class="org-card bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl relative flex flex-col justify-between">
-                <div>
-                    <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-6 shadow-inner">
-                        <i class="fa-solid fa-users-rectangle"></i>
-                    </div>
-                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase">កម្រិតកំពូល</span>
-                    <h4 class="font-moul text-xl text-slate-900 mt-3 mb-3">ម្ចាស់ភាគហ៊ុន (Shareholder)</h4>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        ជាអង្គប្រជុំកំពូល និងជាម្ចាស់កម្មសិទ្ធិដែលមានអំណាចសម្រេចលើគោលនយោបាយធំៗ ការសម្រេចចិត្តយុទ្ធសាស្ត្រ និងការជ្រើសរើសសមាសភាពក្រុមប្រឹក្សាភិបាល។
-                    </p>
-                </div>
-                <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-semibold flex justify-between items-center">
-                    <span>Convenience Level</span>
-                    <i class="fa-solid fa-crown text-amber-500"></i>
-                </div>
-            </div>
-
-            <!-- Level 2: Board of Directors -->
-            <div class="org-card bg-slate-900 text-white rounded-2xl p-8 border border-amber-500/30 shadow-xl relative flex flex-col justify-between ring-2 ring-amber-500/20">
-                <div>
-                    <div class="w-14 h-14 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center text-2xl mb-6 shadow-lg shadow-amber-500/30">
-                        <i class="fa-solid fa-building-columns"></i>
-                    </div>
-                    <span class="text-xs font-bold text-slate-950 bg-amber-400 px-3 py-1 rounded-full uppercase">កម្រិតដឹកនាំយុទ្ធសាស្ត្រ</span>
-                    <h4 class="font-moul text-xl text-amber-400 mt-3 mb-3">ក្រុមប្រឹក្សាភិបាល (Board Members)</h4>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        ទទួលបន្ទុកតម្រង់ទិស គ្រប់គ្រងលើការប្រតិបត្តិទូទៅ និងត្រួតពិនិត្យលើនាយកដ្ឋានជំនាញទាំង ៥ ដើម្បីធានាឱ្យបាននូវការរីកចម្រើនប្រកបដោយចីរភាព។
-                    </p>
-                </div>
-                <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-amber-300 font-semibold flex justify-between items-center">
-                    <span>5 Core Departments</span>
-                    <i class="fa-solid fa-layer-group text-amber-400"></i>
-                </div>
-            </div>
-
-            <!-- Level 3: Executive Committee -->
-            <div class="org-card bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl relative flex flex-col justify-between">
-                <div>
-                    <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-6 shadow-inner">
-                        <i class="fa-solid fa-user-tie"></i>
-                    </div>
-                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase">កម្រិតប្រតិបត្តិការ</span>
-                    <h4 class="font-moul text-xl text-slate-900 mt-3 mb-3">គណៈកម្មាធិការប្រតិបត្តិ</h4>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        ទទួលខុសត្រូវលើការអនុវត្តផែនការសកម្មភាពប្រចាំថ្ងៃ ដឹកនាំក្រុមការងារ និងប្រែក្លាយយុទ្ធសាស្ត្ររបស់ក្រុមប្រឹក្សាភិបាលឱ្យទៅជាលទ្ធផលជាក់ស្តែង។
-                    </p>
-                </div>
-                <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-semibold flex justify-between items-center">
-                    <span>Executive Operations</span>
-                    <i class="fa-solid fa-gears text-amber-500"></i>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ==================== INTERACTIVE ORGANIZATIONAL CHART DIAGRAM ==================== -->
-    <section id="chart-view" class="py-16 bg-slate-900 text-white relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-12">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-amber-400 mb-2">Visual Diagram</h2>
-                <h3 class="font-moul text-2xl sm:text-3xl text-slate-100">ដ្យាក្រាមរចនាសម្ព័ន្ធស្ថាប័ន MSN</h3>
-                <p class="text-slate-400 text-sm mt-2">ចុចលើផ្នែកនីមួយៗដើម្បីមើលព័ត៌មានលម្អិតបន្ថែម</p>
-            </div>
-
-            <!-- Interactive Tree Structure Wrapper -->
-            <div class="overflow-x-auto pb-8 pt-4">
-                <div class="min-w-[850px] flex flex-col items-center">
-                    
-                    <!-- Top Level: Shareholder -->
-                    <div onclick="openModal('shareholder')" class="cursor-pointer bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-bold px-8 py-4 rounded-xl shadow-lg hover:brightness-110 transition-transform transform hover:-translate-y-1 flex items-center gap-3">
-                        <i class="fa-solid fa-users text-xl"></i>
-                        <div class="text-left">
-                            <div class="text-xs uppercase tracking-wider text-slate-900 font-extrabold">Shareholder / Convenience Level</div>
-                            <div class="font-moul text-lg">ម្ចាស់ភាគហ៊ុន (Shareholder)</div>
-                        </div>
-                    </div>
-
-                    <!-- Vertical Line Connector -->
-                    <div class="w-0.5 h-10 bg-amber-500"></div>
-
-                    <!-- Middle Level: Board of Directors -->
-                    <div onclick="openModal('board')" class="cursor-pointer bg-slate-800 border-2 border-amber-500 text-amber-400 font-bold px-10 py-5 rounded-2xl shadow-xl hover:bg-slate-750 transition-transform transform hover:-translate-y-1 flex items-center gap-4">
-                        <i class="fa-solid fa-landmark text-2xl"></i>
-                        <div class="text-left">
-                            <div class="text-xs uppercase tracking-wider text-slate-400">Governance Tier</div>
-                            <div class="font-moul text-xl text-white">ក្រុមប្រឹក្សាភិបាល (Board Members)</div>
-                        </div>
-                    </div>
-
-                    <!-- Vertical Line Splitter -->
-                    <div class="w-0.5 h-10 bg-amber-500"></div>
-
-                    <!-- Horizontal Connector Bar for 5 Departments -->
-                    <div class="w-[80%] h-0.5 bg-amber-500/50 relative">
-                        <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-amber-500"></div>
-                    </div>
-
-                    <!-- Vertical Drops for 5 Departments -->
-                    <div class="w-[80%] flex justify-between">
-                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
-                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
-                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
-                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
-                        <div class="w-0.5 h-8 bg-amber-500/50"></div>
-                    </div>
-
-                    <!-- 5 Core Departments Grid -->
-                    <div class="w-full grid grid-cols-5 gap-3">
-                        <!-- Dept 1 -->
-                        <div onclick="openModal('audit')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
-                                <i class="fa-solid fa-magnifying-glass-chart"></i>
-                            </div>
-                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានសវនកម្ម</div>
-                            <div class="text-[10px] text-slate-400">Audit Dept</div>
-                        </div>
-
-                        <!-- Dept 2 -->
-                        <div onclick="openModal('management')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
-                                <i class="fa-solid fa-compass"></i>
-                            </div>
-                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានគ្រប់គ្រង និងដឹកនាំ</div>
-                            <div class="text-[10px] text-slate-400">Management & Leadership</div>
-                        </div>
-
-                        <!-- Dept 3 -->
-                        <div onclick="openModal('discipline')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
-                                <i class="fa-solid fa-scale-balanced"></i>
-                            </div>
-                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានផ្នែកវិន័យ</div>
-                            <div class="text-[10px] text-slate-400">Discipline Dept</div>
-                        </div>
-
-                        <!-- Dept 4 -->
-                        <div onclick="openModal('finance')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
-                                <i class="fa-solid fa-chart-line"></i>
-                            </div>
-                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានអភិវឌ្ឍន៍ និងហិរញ្ញវត្ថុ</div>
-                            <div class="text-[10px] text-slate-400">Dev & Finance</div>
-                        </div>
-
-                        <!-- Dept 5 -->
-                        <div onclick="openModal('training')" class="cursor-pointer bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 p-3 rounded-xl text-center transition-all hover:-translate-y-1">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-sm">
-                                <i class="fa-solid fa-graduation-cap"></i>
-                            </div>
-                            <div class="text-xs font-semibold text-slate-200">នាយកដ្ឋានបណ្តុះបណ្តាល</div>
-                            <div class="text-[10px] text-slate-400">Training Dept</div>
-                        </div>
-                    </div>
-
-                    <!-- Vertical Line to Executive -->
-                    <div class="w-0.5 h-10 bg-amber-500/50 mt-2"></div>
-
-                    <!-- Bottom Level: Executive Committee -->
-                    <div onclick="openModal('executive')" class="cursor-pointer bg-slate-800 border border-slate-700 text-slate-200 font-bold px-8 py-3.5 rounded-xl shadow-lg hover:border-amber-400 transition-transform transform hover:-translate-y-1 flex items-center gap-3">
-                        <i class="fa-solid fa-network-wired text-amber-400"></i>
-                        <div class="text-left">
-                            <div class="font-moul text-base">គណៈកម្មាធិការប្រតិបត្តិ (Executive Committee)</div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ==================== 5 CORE DEPARTMENTS DETAIL SECTION ==================== -->
-    <section id="departments" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">Board Oversight</h2>
-            <h3 class="font-moul text-2xl sm:text-3xl text-slate-900">នាយកដ្ឋានទាំង ៥ ក្រោមក្រុមប្រឹក្សាភិបាល</h3>
-            <p class="text-slate-600 text-sm mt-3">
-                ដើម្បីធានាបាននូវការដឹកនាំប្រកបដោយប្រសិទ្ធភាព និងចក្ខុវិស័យច្បាស់លាស់ ក្រុមប្រឹក្សាភិបាលបានបែងចែកជា ៥ នាយកដ្ឋានជំនាញ៖
-            </p>
-            <div class="w-20 h-1 bg-amber-500 mx-auto mt-4 rounded-full"></div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- 1. Audit Department -->
-            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200">
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
-                    <i class="fa-solid fa-magnifying-glass-chart"></i>
-                </div>
-                <h4 class="font-moul text-lg text-slate-900 mb-3">១. នាយកដ្ឋានសវនកម្ម</h4>
-                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Audit Department</p>
-                <p class="text-slate-600 text-sm leading-relaxed mb-4">
-                    ទទួលខុសត្រូវលើការត្រួតពិនិត្យផ្ទៃក្នុង វាយតម្លៃហានិភ័យ និងធានាថារាល់ប្រតិបត្តិការទាំងអស់អនុវត្តទៅតាមច្បាប់ បទបញ្ជាផ្ទៃក្នុង និងបទដ្ឋានគណនេយ្យ។
-                </p>
-                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> សវនកម្មហិរញ្ញវត្ថុ និងប្រតិបត្តិការ</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការវាយតម្លៃ និងគ្រប់គ្រងហានិភ័យ</li>
-                </ul>
-            </div>
-
-            <!-- 2. Management & Leadership Department -->
-            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200">
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
-                    <i class="fa-solid fa-compass"></i>
-                </div>
-                <h4 class="font-moul text-lg text-slate-900 mb-3">២. នាយកដ្ឋានគ្រប់គ្រងនិងដឹកនាំ</h4>
-                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Management & Leadership Dept</p>
-                <p class="text-slate-600 text-sm leading-relaxed mb-4">
-                    រៀបចំគោលនយោបាយយុទ្ធសាស្ត្រ ណែនាំទិសដៅការងារ និងត្រួតពិនិត្យការអនុវត្តការងាររបស់គណៈកម្មាធិការប្រតិបត្តិឱ្យសម្រេចបានតាមគោលដៅស្ថាប័ន។
-                </p>
-                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការកំណត់ទិសដៅយុទ្ធសាស្ត្រ</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការតាមដានការអនុវត្តការងារ (KPIs)</li>
-                </ul>
-            </div>
-
-            <!-- 3. Discipline Department -->
-            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200">
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
-                    <i class="fa-solid fa-scale-balanced"></i>
-                </div>
-                <h4 class="font-moul text-lg text-slate-900 mb-3">៣. នាយកដ្ឋានផ្នែកវិន័យ</h4>
-                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Discipline Department</p>
-                <p class="text-slate-600 text-sm leading-relaxed mb-4">
-                    ពង្រឹងកតព្វកិច្ច បទបញ្ជាផ្ទៃក្នុង ក្រមសីលធម៌វិជ្ជាជីវៈ និងធានានូវបរិយាកាសការងារប្រកបដោយតម្លាភាព យុត្តិធម៌ និងភាពស្មោះត្រង់។
-                </p>
-                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការពង្រឹងក្រមសីលធម៌ និងវិន័យ</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការដោះស្រាយវិវាទផ្ទៃក្នុង</li>
-                </ul>
-            </div>
-
-            <!-- 4. Development & Finance Department -->
-            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200">
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
-                <h4 class="font-moul text-lg text-slate-900 mb-3">៤. នាយកដ្ឋានអភិវឌ្ឍន៍និងហិរញ្ញវត្ថុ</h4>
-                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Development & Finance Dept</p>
-                <p class="text-slate-600 text-sm leading-relaxed mb-4">
-                    គ្រប់គ្រងផែនការថវិកា ស្វែងរកឱកាសវិនិយោគថ្មីៗ ព្រមទាំងរៀបចំផែនការអភិវឌ្ឍន៍អាជីវកម្មមហាសិរី Network ឱ្យមានការរីកចម្រើនជាដរាប។
-                </p>
-                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការគ្រប់គ្រងហិរញ្ញវត្ថុ និងវិនិយោគ</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ផែនការអភិវឌ្ឍន៍ និងការពង្រីកដែនសេវា</li>
-                </ul>
-            </div>
-
-            <!-- 5. Training Department -->
-            <div class="dept-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-slate-200 md:col-span-2 lg:col-span-1">
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-6">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                </div>
-                <h4 class="font-moul text-lg text-slate-900 mb-3">៥. នាយកដ្ឋានបណ្តុះបណ្តាល</h4>
-                <p class="text-xs uppercase tracking-wider text-amber-600 font-bold mb-3">Training Department</p>
-                <p class="text-slate-600 text-sm leading-relaxed mb-4">
-                    បង្កើតវគ្គបណ្តុះបណ្តាល ប៉ិនប្រសប់ការងារ និងបង្កើនសមត្ថភាពដល់ថ្នាក់ដឹកនាំ និងបុគ្គលិកគ្រប់កម្រិតដើម្បីឆ្លើយតបនឹងការវិវឌ្ឍនៃទីផ្សារ។
-                </p>
-                <ul class="text-xs text-slate-500 space-y-2 border-t border-slate-100 pt-4">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> កម្មវិធីអភិវឌ្ឍន៍សមត្ថភាពបុគ្គលិក</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-500"></i> ការសិក្ខាសាលានិងវគ្គសិក្សាឯកទេស</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- ==================== EXECUTIVE COMMITTEE SECTION ==================== -->
-    <section id="executive" class="py-16 bg-slate-100 border-t border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 sm:p-12 text-white shadow-xl relative overflow-hidden">
-                <div class="max-w-3xl relative z-10">
-                    <span class="text-xs font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">Executive Arm</span>
-                    <h3 class="font-moul text-2xl sm:text-3xl text-white mt-4 mb-4">គណៈកម្មាធិការប្រតិបត្តិ (Executive Committee)</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
-                        គណៈកម្មាធិការប្រតិបត្តិ គឺជាដែនដីប្រតិបត្តិការផ្ទាល់ដែលទទួលខុសត្រូវក្នុងការបកប្រែគោលនយោបាយ និងយុទ្ធសាស្ត្ររបស់ក្រុមប្រឹក្សាភិបាលឱ្យទៅជាសកម្មភាពជាក់ស្តែង ធានាឱ្យសហគ្រាសដំណើរការទៅដោយរលូន ឆ្លើយតបទាន់ពេលវេលា និងទទួលបានលទ្ធផលល្អប្រសើរ។
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-amber-300">
-                        <div class="flex items-center gap-2 bg-slate-800/80 p-3 rounded-lg border border-slate-700">
-                            <i class="fa-solid fa-chart-pie text-amber-400"></i>
-                            <span>ប្រតិបត្តិការប្រចាំថ្ងៃ</span>
-                        </div>
-                        <div class="flex items-center gap-2 bg-slate-800/80 p-3 rounded-lg border border-slate-700">
-                            <i class="fa-solid fa-bullseye text-amber-400"></i>
-                            <span>ការសម្រេចគោលដៅ KPIs</span>
-                        </div>
-                        <div class="flex items-center gap-2 bg-slate-800/80 p-3 rounded-lg border border-slate-700">
-                            <i class="fa-solid fa-diagram-project text-amber-400"></i>
-                            <span>គ្រប់គ្រងគម្រោងជាក់ស្តែង</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ==================== FOOTER ==================== -->
-    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex items-center space-x-3 space-x-reverse">
-                    <div class="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-xl">
-                        <i class="fa-solid fa-crown"></i>
-                    </div>
+        <!-- ==================== TAB 1: SYSTEM OVERVIEW DASHBOARD ==================== -->
+        <section id="section-dashboard" class="space-y-6">
+            <!-- Top Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex justify-between items-start">
                     <div>
-                        <span class="font-moul text-lg text-slate-200 block">មហាសិរី Network (MSN)</span>
-                        <span class="text-xs text-slate-500">Mahasiri Network Corporate Governance</span>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">សមាជិកសរុប (Total Members)</p>
+                        <h3 id="stat-members-count" class="text-3xl font-bold font-mono text-slate-900 mt-2">0</h3>
+                        <p class="text-[11px] text-emerald-600 font-medium mt-1"><i class="fa-solid fa-arrow-trend-up"></i> 100% Unique Identity</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-id-card"></i>
                     </div>
                 </div>
-                <div class="text-xs text-slate-500 text-center md:text-right">
-                    &copy; 2026 មហាសិរី Network (MSN). រក្សាសិទ្ធិគ្រប់យ៉ាង។
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">ពិន្ទុចរាចរណ៍សរុប (Active Points)</p>
+                        <h3 id="stat-total-points" class="text-3xl font-bold font-mono text-amber-600 mt-2">0</h3>
+                        <p class="text-[11px] text-slate-500 mt-1"><i class="fa-solid fa-calculator"></i> Real-time Ledger Query</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">បណ្តាញ Referrals (Referrals)</p>
+                        <h3 id="stat-referrals-count" class="text-3xl font-bold font-mono text-indigo-600 mt-2">0</h3>
+                        <p class="text-[11px] text-indigo-600 font-medium mt-1"><i class="fa-solid fa-link"></i> Immutable Referrer Link</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">កត់ត្រាសវនកម្ម (Audit Trail)</p>
+                        <h3 id="stat-audit-count" class="text-3xl font-bold font-mono text-slate-700 mt-2">0</h3>
+                        <p class="text-[11px] text-emerald-600 font-medium mt-1"><i class="fa-solid fa-shield-check"></i> System Integrity 100%</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
                 </div>
             </div>
+
+            <!-- Architecture & Quick Actions Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- System Core Specification Banner -->
+                <div class="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 sm:p-8 shadow-xl border border-amber-500/20 relative overflow-hidden flex flex-col justify-between">
+                    <div class="relative z-10">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-mono mb-4">
+                            <i class="fa-solid fa-code"></i> NestJS + PostgreSQL Architecture
+                        </div>
+                        <h2 class="font-moul text-xl sm:text-2xl text-amber-400 mb-3">គោលការណ៍គ្រឹះ MSN Member Core System</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6 font-light">
+                            «មនុស្សម្នាក់ - អត្តសញ្ញាណ MSN មួយ – អាចមានតួនាទីច្រើន – សកម្មភាពច្រើន - ប៉ុន្តែរក្សាទុកជាកំណត់ត្រាទិន្នន័យដែលអាចទុកចិត្តបានតែមួយ» (One Person - One Digital Identity - Multiple Roles).
+                        </p>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                            <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                <span class="text-slate-400 block text-[10px]">Database:</span>
+                                <span class="text-white font-bold">PostgreSQL</span>
+                            </div>
+                            <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                <span class="text-slate-400 block text-[10px]">Ledger Mode:</span>
+                                <span class="text-emerald-400 font-bold">Immutable</span>
+                            </div>
+                            <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                <span class="text-slate-400 block text-[10px]">Security:</span>
+                                <span class="text-amber-400 font-bold">JWT + RBAC</span>
+                            </div>
+                            <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                <span class="text-slate-400 block text-[10px]">Primary Key:</span>
+                                <span class="text-purple-400 font-bold">UUID v4</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Panel -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-moul text-base text-slate-900 mb-1">ប្រតិបត្តិការរហ័ស (Quick Actions)</h3>
+                        <p class="text-xs text-slate-500 mb-5">គ្រប់គ្រងទិន្នន័យតាម Spec V1.0</p>
+                        
+                        <div class="space-y-3">
+                            <button onclick="openRegisterModal()" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2">
+                                    <i class="fa-solid fa-user-plus text-sm"></i>
+                                    <span>ចុះឈ្មោះសមាជិកថ្មី (Register Member)</span>
+                                </span>
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+
+                            <button onclick="openPointTransactionModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-xl shadow-sm transition flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2">
+                                    <i class="fa-solid fa-coins text-amber-400 text-sm"></i>
+                                    <span>បញ្ចូល Transaction ពិន្ទុ (Point Ledger)</span>
+                                </span>
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+
+                            <button onclick="resetToSampleData()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-xl transition flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                    <span>ផ្ទុកទិន្នន័យគំរូឡើងវិញ (Reload Demo)</span>
+                                </span>
+                                <i class="fa-solid fa-arrow-rotate-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+                        Phase 1: Minimum Viable System (MVS)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent System Activity Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Latest Members Registered -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-moul text-sm text-slate-900">សមាជិកចុះឈ្មោះថ្មីៗ (Recent Members)</h4>
+                        <button onclick="switchTab('members')" class="text-xs text-amber-600 font-semibold hover:underline">មើលទាំងអស់ &rarr;</button>
+                    </div>
+                    <div id="recent-members-list" class="space-y-3">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Latest Point Ledger Activity -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-moul text-sm text-slate-900">ប្រតិបត្តិការពិន្ទុចុងក្រោយ (Point Transactions)</h4>
+                        <button onclick="switchTab('points')" class="text-xs text-amber-600 font-semibold hover:underline">មើល Ledger &rarr;</button>
+                    </div>
+                    <div id="recent-points-list" class="space-y-3">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: MEMBER MANAGEMENT ==================== -->
+        <section id="section-members" class="space-y-6 hidden">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="font-moul text-lg text-slate-900">បញ្ជីគ្រប់គ្រងសមាជិក (Member Directory)</h3>
+                        <p class="text-xs text-slate-500 mt-1">ទិន្នន័យសមាជិកអត្តសញ្ញាណ MSN (Digital Member Identity)</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <input type="text" id="member-search-input" onkeyup="filterMembersTable()" placeholder="ស្វែងរកតាមឈ្មោះ, លេខទូរស័ព្ទ, MSN ID..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <button onclick="openRegisterModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs shadow-md transition flex items-center gap-2 whitespace-nowrap">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>បន្ថែមសមាជិក</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 uppercase text-[10px] tracking-wider font-semibold border-y border-slate-200">
+                            <tr>
+                                <th class="py-3.5 px-4">MSN Member ID</th>
+                                <th class="py-3.5 px-4">ឈ្មោះពេញ (Full Name)</th>
+                                <th class="py-3.5 px-4">លេខទូរស័ព្ទ (Phone)</th>
+                                <th class="py-3.5 px-4">តួនាទី (Role)</th>
+                                <th class="py-3.5 px-4">អ្នកណែនាំ (Referrer)</th>
+                                <th class="py-3.5 px-4">ពិន្ទុសរុប (Points)</th>
+                                <th class="py-3.5 px-4">ស្ថានភាព (Status)</th>
+                                <th class="py-3.5 px-4 text-right">សកម្មភាព (Actions)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="members-table-body" class="divide-y divide-slate-100 font-mono">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 3: POINT LEDGER & RULES ==================== -->
+        <section id="section-points" class="space-y-6 hidden">
+            <!-- Point System Header -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Point Rules Standard Config -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-moul text-sm text-slate-900">Point Rule Engine</h4>
+                        <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-mono">System Config</span>
+                    </div>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between items-center p-2.5 bg-slate-50 rounded-lg">
+                            <div>
+                                <span class="font-mono text-slate-800 font-semibold block">RULE-001 (Registration)</span>
+                                <span class="text-[10px] text-slate-500">Member Registration</span>
+                            </div>
+                            <span class="font-mono text-emerald-600 font-bold">+10 Points</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2.5 bg-slate-50 rounded-lg">
+                            <div>
+                                <span class="font-mono text-slate-800 font-semibold block">RULE-002 (Training)</span>
+                                <span class="text-[10px] text-slate-500">Training Participation</span>
+                            </div>
+                            <span class="font-mono text-emerald-600 font-bold">+20 Points</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2.5 bg-slate-50 rounded-lg">
+                            <div>
+                                <span class="font-mono text-slate-800 font-semibold block">RULE-003 (Completion)</span>
+                                <span class="text-[10px] text-slate-500">Training Completion</span>
+                            </div>
+                            <span class="font-mono text-emerald-600 font-bold">+10 Points</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2.5 bg-slate-50 rounded-lg">
+                            <div>
+                                <span class="font-mono text-slate-800 font-semibold block">RULE-004 (Referral)</span>
+                                <span class="text-[10px] text-slate-500">Approved Referral</span>
+                            </div>
+                            <span class="font-mono text-emerald-600 font-bold">+20 Points</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Immutable Ledger Concept Notice & Add Transaction Button -->
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-moul text-base text-slate-900">Point Ledger Concept</h4>
+                            <button onclick="openPointTransactionModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-plus text-amber-400"></i>
+                                <span>បង្កើត Transaction</span>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                            ប្រព័ន្ធមិនអនុញ្ញាតឱ្យ User/Admin កែប្រែចំនួនពិន្ទុ Balance ដោយផ្ទាល់ឡើយ (<code class="bg-slate-100 text-amber-700 px-1 rounded">No Direct Balance Edit</code>)។ រាល់ការផ្លាស់ប្តូរពិន្ទុត្រូវតែឆ្លងកាត់ Transaction (EARN, DEDUCTION, ADJUSTMENT, REVERSAL) ដើម្បីរក្សាប្រវត្តិ Auditability 100%។
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs font-mono grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                        <div>
+                            <span class="text-slate-400 text-[10px] block">Formula:</span>
+                            <span class="text-slate-800 font-bold">Sum(Ledger)</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 text-[10px] block">Transaction Types:</span>
+                            <span class="text-amber-600 font-bold">4 Types</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 text-[10px] block">Soft Delete:</span>
+                            <span class="text-emerald-600 font-bold">Enabled</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 text-[10px] block">Audit Sync:</span>
+                            <span class="text-indigo-600 font-bold">Automatic</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Point Transactions Ledger Table -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h3 class="font-moul text-sm text-slate-900 mb-4">កំណត់ត្រាប្រតិបត្តិការពិន្ទុ (Point Ledger Transactions)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 uppercase text-[10px] tracking-wider font-semibold border-y border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">កាលបរិច្ឆេទ (Date)</th>
+                                <th class="py-3 px-4">សមាជិក (Member ID)</th>
+                                <th class="py-3 px-4">ប្រភេទ (Type)</th>
+                                <th class="py-3 px-4">ចំនួនពិន្ទុ (Points)</th>
+                                <th class="py-3 px-4">Rule Code</th>
+                                <th class="py-3 px-4">បរិយាយ (Description)</th>
+                                <th class="py-3 px-4">អ្នកបញ្ជូល (Created By)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="point-ledger-table-body" class="divide-y divide-slate-100 font-mono">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 4: REFERRAL NETWORK ==================== -->
+        <section id="section-referral" class="space-y-6 hidden">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="mb-6">
+                    <h3 class="font-moul text-lg text-slate-900">បណ្តាញទំនាក់ទំនង Referral Network</h3>
+                    <p class="text-xs text-slate-500 mt-1">បង្ហាញទំនាក់ទំនង Who Referred Whom នៅក្នុង MSN Ecosystem</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Referral List View -->
+                    <div>
+                        <h4 class="font-moul text-xs text-slate-800 uppercase tracking-wider mb-3">បញ្ជីទំនាក់ទំនង Referral ទាំងអស់</h4>
+                        <div id="referral-relationship-list" class="space-y-3 font-mono text-xs">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Visual Hierarchy Preview -->
+                    <div class="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800">
+                        <h4 class="font-moul text-xs text-amber-400 uppercase tracking-wider mb-4">រចនាសម្ព័ន្ធបណ្តាញគំរូ (Visual Network Tree)</h4>
+                        
+                        <div id="referral-tree-visual" class="space-y-4">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 5: AUDIT LOGS ==================== -->
+        <section id="section-audit" class="space-y-6 hidden">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="font-moul text-lg text-slate-900">ប្រវត្តិសវនកម្មប្រព័ន្ធ (System Audit Logs)</h3>
+                        <p class="text-xs text-slate-500 mt-1">កត់ត្រារាល់សកម្មភាព Admin Actions, Security, និង Point Changes ទាំងអស់</p>
+                    </div>
+                    <span class="text-xs font-mono bg-slate-100 px-3 py-1.5 rounded-lg text-slate-700 border border-slate-200">Table: audit_logs</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 uppercase text-[10px] tracking-wider font-semibold border-y border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">Timestamp</th>
+                                <th class="py-3 px-4">User</th>
+                                <th class="py-3 px-4">Action</th>
+                                <th class="py-3 px-4">Entity Type</th>
+                                <th class="py-3 px-4">Entity ID</th>
+                                <th class="py-3 px-4">New State / Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-logs-table-body" class="divide-y divide-slate-100 font-mono text-[11px]">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-6 text-xs text-center font-mono">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>MSN Core Member System Technical Specification V1.0 &copy; 2026 by H.E Mend Mony</p>
+            <p class="text-[10px] text-slate-500 mt-1">Build Small. Build Correctly. Build for Scale.</p>
         </div>
     </footer>
 
-    <!-- ==================== DETAILS MODAL ==================== -->
-    <div id="info-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative animate-fade-in">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+    <!-- ==================== MODAL: REGISTER MEMBER ==================== -->
+    <div id="modal-register-member" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+            <button onclick="closeModal('modal-register-member')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div id="modal-content">
-                <!-- Dynamic Content Injected Here via JavaScript -->
-            </div>
+            <h3 class="font-moul text-base text-slate-900 mb-1">ចុះឈ្មោះសមាជិក MSN ថ្មី</h3>
+            <p class="text-xs text-slate-500 mb-4 font-mono">Create Member Identity & Generate MSN ID</p>
+
+            <form id="form-register-member" onsubmit="handleMemberRegistration(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">ឈ្មោះពេញ (Full Name) *</label>
+                    <input type="text" id="reg-fullname" required placeholder="ឧ. ចាន់ សុភ័ក្ត្រ" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">លេខទូរស័ព្ទ (Phone Number) *</label>
+                    <input type="tel" id="reg-phone" required placeholder="ឧ. 012 888 999" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">តួនាទីដំបូង (Role) *</label>
+                    <select id="reg-role" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="MEMBER">MEMBER (សមាជិក)</option>
+                        <option value="AGENT">AGENT (ភ្នាក់ងារ)</option>
+                        <option value="LEADER">LEADER (ថ្នាក់ដឹកនាំ)</option>
+                        <option value="STRATEGIC PARTNER">STRATEGIC PARTNER (ដៃគូយុទ្ធសាស្ត្រ)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">អ្នកណែនាំ (Referrer Member)</label>
+                    <select id="reg-referrer" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="">-- គ្មានអ្នកណែនាំ (Direct Join) --</option>
+                        <!-- Dynamic Options via JS -->
+                    </select>
+                </div>
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modal-register-member')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg">បោះបង់</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg shadow">ចុះឈ្មោះ</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- ==================== JAVASCRIPT SECTION (script.js counterpart) ==================== -->
-    <script>
-        /* -------------------------------------------------------------
-           SCRIPT.JS CODE SECTION
-           ------------------------------------------------------------- */
-        
-        // Mobile Menu Toggle Logic
-        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
-        });
+    <!-- ==================== MODAL: ADD POINT TRANSACTION ==================== -->
+    <div id="modal-point-transaction" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+            <button onclick="closeModal('modal-point-transaction')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="font-moul text-base text-slate-900 mb-1">បញ្ចូល Point Ledger Transaction</h3>
+            <p class="text-xs text-slate-500 mb-4 font-mono">Record Earn / Deduction / Adjustment / Reversal</p>
 
-        // Modal Content Data Store
-        const modalData = {
-            shareholder: {
-                title: 'ម្ចាស់ភាគហ៊ុន (Shareholder / Convenience Level)',
-                subtitle: 'កម្រិតអំណាចកំពូលនៃស្ថាប័ន',
-                icon: 'fa-users-rectangle',
-                body: 'ម្ចាស់ភាគហ៊ុនគឺជាម្ចាស់កម្មសិទ្ធិនៃ មហាសិរី Network (MSN)។ មានសិទ្ធិអំណាចក្នុងការសម្រេចចិត្តលើរបៀបវារៈសំខាន់ៗ ដូចជាការអនុម័តរបាយការណ៍ហិរញ្ញវត្ថុប្រចាំឆ្នាំ ការបែងចែកប្រាក់ចំណេញ ការតែងតាំង ឬដកតំណែងសមាជិកក្រុមប្រឹក្សាភិបាល និងការកែប្រែប្រកាសនីយបត្រក្រុមហ៊ុន។'
-            },
-            board: {
-                title: 'ក្រុមប្រឹក្សាភិបាល (Board Members)',
-                subtitle: 'អង្គភាពដឹកនាំយុទ្ធសាស្ត្រ និងតម្រង់ទិស',
-                icon: 'fa-landmark',
-                body: 'ក្រុមប្រឹក្សាភិបាលទទួលបន្ទុកកំណត់ចក្ខុវិស័យ បេសកកម្ម និងយុទ្ធសាស្ត្រវែងឆ្ងាយរបស់ក្រុមហ៊ុន។ ក្រុមប្រឹក្សាភិបាលត្រូវត្រួតពិនិត្យផ្ទាល់លើ នាយកដ្ឋានសវនកម្ម, នាយកដ្ឋានគ្រប់គ្រងនិងដឹកនាំ, នាយកដ្ឋានផ្នែកវិន័យ, នាយកដ្ឋានអភិវឌ្ឍន៍និងហិរញ្ញវត្ថុ និងនាយកដ្ឋានបណ្តុះបណ្តាល។'
-            },
-            audit: {
-                title: 'នាយកដ្ឋានសវនកម្ម (Audit Department)',
-                subtitle: 'ការត្រួតពិនិត្យ និងវាយតម្លៃផ្ទៃក្នុង',
-                icon: 'fa-magnifying-glass-chart',
-                body: 'នាយកដ្ឋាននេះមាននាទីឯករាជ្យក្នុងការត្រួតពិនិត្យរាល់ប្រតិបត្តិការ ហិរញ្ញវត្ថុ ច្បាប់ និងបទដ្ឋានបច្ចេកទេស ដើម្បីធានាថាក្រុមហ៊ុនគ្មានហានិភ័យ និងដំណើរការដោយតម្លាភាពខ្ពស់បំផុត។'
-            },
-            management: {
-                title: 'នាយកដ្ឋានគ្រប់គ្រងនិងដឹកនាំ',
-                subtitle: 'Management & Leadership Department',
-                icon: 'fa-compass',
-                body: 'ទទួលខុសត្រូវលើការណែនាំទិសដៅការងារ ការរៀបចំរចនាសម្ព័ន្ធផ្ទៃក្នុង ការប្រគល់ភារកិច្ច និងការតាមដានការអនុវត្តការងាររបស់គណៈកម្មាធិការប្រតិបត្តិ។'
-            },
-            discipline: {
-                title: 'នាយកដ្ឋានផ្នែកវិន័យ (Discipline Department)',
-                subtitle: 'ការពង្រឹងវិន័យ និងក្រមសីលធម៌',
-                icon: 'fa-scale-balanced',
-                body: 'ធានានូវការអនុវត្តបទបញ្ជាផ្ទៃក្នុងស្ថាប័នយ៉ាងម៉ឺងម៉ាត់ រក្សាសុជីវធម៌វិជ្ជាជីវៈ និងដោះស្រាយរាល់វិវាទផ្ទៃក្នុងប្រកបដោយយុត្តិធម៌។'
-            },
-            finance: {
-                title: 'នាយកដ្ឋានអភិវឌ្ឍន៍និងហិរញ្ញវត្ថុ',
-                subtitle: 'Development & Finance Department',
-                icon: 'fa-chart-line',
-                body: 'ទទួលបន្ទុកគ្រប់គ្រងទុន ថវិកា វិនិយោគ និងការរៀបចំផែនការអភិវឌ្ឍន៍ពង្រីកវិសាលភាពអាជីវកម្មរបស់ មហាសិរី Network ឱ្យមានស្ថិរភាព និងកំណើនជាបន្តបន្ទាប់។'
-            },
-            training: {
-                title: 'នាយកដ្ឋានបណ្តុះបណ្តាល (Training Department)',
-                subtitle: 'ការអភិវឌ្ឍធនធានមនុស្ស',
-                icon: 'fa-graduation-cap',
-                body: 'រៀបចំកម្មវិធីសិក្ខាសាលា វគ្គបណ្តុះបណ្តាលសមត្ថភាព ប៉ិនប្រសប់ការងារ និងពង្រឹងជំនាញដឹកនាំដល់បុគ្គលិកគ្រប់ជាន់ថ្នាក់។'
-            },
-            executive: {
-                title: 'គណៈកម្មាធិការប្រតិបត្តិ (Executive Committee)',
-                subtitle: 'ក្រុមការងារអនុវត្តប្រតិបត្តិការផ្ទាល់',
-                icon: 'fa-network-wired',
-                body: 'ជាសមាសភាគដឹកនាំប្រតិបត្តិការប្រចាំថ្ងៃ ទទួលបញ្ជា និងទិសដៅពីក្រុមប្រឹក្សាភិបាល ដើម្បីដឹកនាំក្រុមការងារបច្ចេកទេសឱ្យសម្រេចបាននូវផែនការសកម្មភាព និងគោលដៅស្ថាប័ន។'
-            }
-        };
-
-        // Modal Handler Functions
-        function openModal(key) {
-            const data = modalData[key];
-            if (!data) return;
-
-            const modalContent = document.getElementById('modal-content');
-            modalContent.innerHTML = `
-                <div class="flex items-center gap-3 mb-4 text-amber-600">
-                    <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-lg">
-                        <i class="fa-solid ${data.icon}"></i>
+            <form id="form-point-transaction" onsubmit="handlePointTransaction(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">ជ្រើសរើសសមាជិក (Select Member) *</label>
+                    <select id="pt-member" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <!-- Dynamic Options via JS -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ប្រភេទ Transaction *</label>
+                        <select id="pt-type" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="EARN">EARN (+)</option>
+                            <option value="DEDUCTION">DEDUCTION (-)</option>
+                            <option value="ADJUSTMENT">ADJUSTMENT (+)</option>
+                            <option value="REVERSAL">REVERSAL (-)</option>
+                        </select>
                     </div>
                     <div>
-                        <h3 class="font-moul text-lg text-slate-900">${data.title}</h3>
-                        <p class="text-xs text-slate-500 font-sans">${data.subtitle}</p>
+                        <label class="block font-semibold text-slate-700 mb-1">ចំនួនពិន្ទុ (Points) *</label>
+                        <input type="number" id="pt-points" min="1" required placeholder="ឧ. 20" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
                     </div>
                 </div>
-                <div class="w-full h-px bg-slate-100 my-3"></div>
-                <p class="text-sm text-slate-600 leading-relaxed font-sans mb-6">
-                    ${data.body}
-                </p>
-                <div class="flex justify-end">
-                    <button onclick="closeModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-5 py-2.5 rounded-lg transition-colors">
-                        បិទ (Close)
-                    </button>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Rule Code (ចំណាត់ថ្នាក់)</label>
+                    <select id="pt-rule" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="RULE-001">RULE-001 (Member Registration)</option>
+                        <option value="RULE-002">RULE-002 (Training Participation)</option>
+                        <option value="RULE-003">RULE-003 (Training Completion)</option>
+                        <option value="RULE-004">RULE-004 (Approved Referral)</option>
+                        <option value="RULE-MANUAL">RULE-MANUAL (Admin Adjustment)</option>
+                    </select>
                 </div>
-            `;
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">បរិយាយ (Description / Reason) *</label>
+                    <input type="text" id="pt-desc" required placeholder="ឧ. ចូលរួមវគ្គបណ្តុះបណ្តាលថ្នាក់ដឹកនាំ" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modal-point-transaction')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg">បោះបង់</button>
+                    <button type="submit" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg shadow">រក្សាទុក Ledger</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            document.getElementById('info-modal').classList.remove('hidden');
+    <!-- ====================================================================
+         SCRIPT.JS - IN-MEMORY DATABASE & APPLICATION BUSINESS LOGIC
+         ==================================================================== -->
+    <script>
+        /* -------------------------------------------------------------
+           SCRIPT.JS CODE SECTION - BUSINESS LOGIC & DATA MODELS
+           ------------------------------------------------------------- */
+
+        // Initial Seed Data based on Specification V1.0
+        const initialMembers = [
+            { id: "uuid-001", member_code: "MSN-000001", full_name: "ឯកឧត្តម ម៉ិន មុនី", phone: "012 111 222", role: "ADMIN", referrer_id: null, status: "ACTIVE", registered_at: "2026-08-25 08:00" },
+            { id: "uuid-002", member_code: "MSN-000002", full_name: "លោក សុខ ចាន់ថា", phone: "012 333 444", role: "LEADER", referrer_id: "uuid-001", status: "ACTIVE", registered_at: "2026-08-25 09:30" },
+            { id: "uuid-003", member_code: "MSN-000003", full_name: "កញ្ញា កែវ ធារី", phone: "012 555 666", role: "AGENT", referrer_id: "uuid-002", status: "ACTIVE", registered_at: "2026-08-25 10:15" },
+            { id: "uuid-004", member_code: "MSN-000004", full_name: "លោក រតនៈ វិបុល", phone: "012 777 888", role: "MEMBER", referrer_id: "uuid-003", status: "ACTIVE", registered_at: "2026-08-26 14:20" },
+            { id: "uuid-005", member_code: "MSN-000005", full_name: "ក្រុមហ៊ុន ដៃគូ អភិវឌ្ឍន៍ MSN", phone: "023 999 000", role: "STRATEGIC PARTNER", referrer_id: "uuid-001", status: "ACTIVE", registered_at: "2026-08-26 16:00" }
+        ];
+
+        const initialPointTransactions = [
+            { id: "pt-1", member_id: "uuid-001", rule_code: "RULE-001", transaction_type: "EARN", points: 10, description: "Initial Member Registration", created_by: "System Admin", created_at: "2026-08-25 08:00" },
+            { id: "pt-2", member_id: "uuid-002", rule_code: "RULE-001", transaction_type: "EARN", points: 10, description: "Initial Member Registration", created_by: "System Admin", created_at: "2026-08-25 09:30" },
+            { id: "pt-3", member_id: "uuid-001", rule_code: "RULE-004", transaction_type: "EARN", points: 20, description: "Approved Referral Bonus for MSN-000002", created_by: "System Admin", created_at: "2026-08-25 09:31" },
+            { id: "pt-4", member_id: "uuid-003", rule_code: "RULE-001", transaction_type: "EARN", points: 10, description: "Initial Member Registration", created_by: "Admin-001", created_at: "2026-08-25 10:15" },
+            { id: "pt-5", member_id: "uuid-002", rule_code: "RULE-002", transaction_type: "EARN", points: 20, description: "Training Participation - Leadership Course", created_by: "Admin-001", created_at: "2026-08-26 11:00" },
+            { id: "pt-6", member_id: "uuid-004", rule_code: "RULE-001", transaction_type: "EARN", points: 10, description: "Initial Member Registration", created_by: "Agent MSN-000003", created_at: "2026-08-26 14:20" }
+        ];
+
+        const initialAuditLogs = [
+            { id: "log-1", timestamp: "2026-08-25 08:00", user: "SYSTEM", action: "SYSTEM_INITIALIZE", entity_type: "DATABASE", entity_id: "pg-schema-v1", new_value: "PostgreSQL Tables Created" },
+            { id: "log-2", timestamp: "2026-08-25 08:05", user: "Admin-001", action: "CREATE_MEMBER", entity_type: "MEMBERS", entity_id: "uuid-001", new_value: "Code: MSN-000001, Role: ADMIN" },
+            { id: "log-3", timestamp: "2026-08-25 09:30", user: "Admin-001", action: "CREATE_MEMBER", entity_type: "MEMBERS", entity_id: "uuid-002", new_value: "Code: MSN-000002, Referrer: MSN-000001" },
+            { id: "log-4", timestamp: "2026-08-26 11:00", user: "Admin-001", action: "POINT_TRANSACTION", entity_type: "POINT_TRANSACTIONS", entity_id: "pt-5", new_value: "+20 Points to MSN-000002" }
+        ];
+
+        // System State
+        let dbMembers = [];
+        let dbPointTransactions = [];
+        let dbAuditLogs = [];
+
+        // Application Initialization
+        window.onload = function() {
+            loadDatabase();
+            renderAllViews();
+        };
+
+        function loadDatabase() {
+            const storedMembers = localStorage.getItem('msn_members');
+            const storedPoints = localStorage.getItem('msn_points');
+            const storedAudits = localStorage.getItem('msn_audits');
+
+            dbMembers = storedMembers ? JSON.parse(storedMembers) : [...initialMembers];
+            dbPointTransactions = storedPoints ? JSON.parse(storedPoints) : [...initialPointTransactions];
+            dbAuditLogs = storedAudits ? JSON.parse(storedAudits) : [...initialAuditLogs];
+
+            saveDatabase();
         }
 
-        function closeModal() {
-            document.getElementById('info-modal').classList.add('hidden');
+        function saveDatabase() {
+            localStorage.setItem('msn_members', JSON.stringify(dbMembers));
+            localStorage.setItem('msn_points', JSON.stringify(dbPointTransactions));
+            localStorage.setItem('msn_audits', JSON.stringify(dbAuditLogs));
         }
 
-        // Close modal when clicking outside
-        window.addEventListener('click', function(e) {
-            const modal = document.getElementById('info-modal');
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
+        function resetToSampleData() {
+            dbMembers = [...initialMembers];
+            dbPointTransactions = [...initialPointTransactions];
+            dbAuditLogs = [...initialAuditLogs];
+            saveDatabase();
+            renderAllViews();
+        }
+
+        // Calculation Helpers (Spec V1.0 Ledger Balance Query)
+        function calculateMemberPoints(memberId) {
+            return dbPointTransactions
+                .filter(tx => tx.member_id === memberId)
+                .reduce((total, tx) => {
+                    if (tx.transaction_type === 'EARN' || tx.transaction_type === 'ADJUSTMENT') {
+                        return total + tx.points;
+                    } else if (tx.transaction_type === 'DEDUCTION' || tx.transaction_type === 'REVERSAL') {
+                        return total - tx.points;
+                    }
+                    return total;
+                }, 0);
+        }
+
+        function calculateSystemTotalPoints() {
+            return dbMembers.reduce((total, member) => total + calculateMemberPoints(member.id), 0);
+        }
+
+        function getMemberByCodeOrId(identifier) {
+            return dbMembers.find(m => m.id === identifier || m.member_code === identifier);
+        }
+
+        // Navigation Tabs Controller
+        function switchTab(tabName) {
+            const tabs = ['dashboard', 'members', 'points', 'referral', 'audit'];
+            tabs.forEach(t => {
+                document.getElementById(`section-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('nav-tab-active');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-300');
+            });
+
+            document.getElementById(`section-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.add('nav-tab-active');
+            activeBtn.classList.remove('text-slate-300');
+        }
+
+        // Render Functions
+        function renderAllViews() {
+            renderOverviewStats();
+            renderMembersTable();
+            renderPointLedgerTable();
+            renderReferralsView();
+            renderAuditLogsTable();
+            populateSelectOptions();
+        }
+
+        function renderOverviewStats() {
+            document.getElementById('stat-members-count').innerText = dbMembers.length;
+            document.getElementById('badge-total-members').innerText = dbMembers.length;
+            document.getElementById('stat-total-points').innerText = calculateSystemTotalPoints().toLocaleString();
+            
+            const totalReferrals = dbMembers.filter(m => m.referrer_id).length;
+            document.getElementById('stat-referrals-count').innerText = totalReferrals;
+            document.getElementById('stat-audit-count').innerText = dbAuditLogs.length;
+
+            // Render Recent Members Widget
+            const recentMembersContainer = document.getElementById('recent-members-list');
+            recentMembersContainer.innerHTML = dbMembers.slice(-3).reverse().map(m => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs font-mono">
+                            ID
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-900 text-xs block">${m.full_name}</span>
+                            <span class="font-mono text-[10px] text-amber-600 font-semibold">${m.member_code}</span>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-mono px-2 py-1 rounded bg-slate-200 text-slate-700">${m.role}</span>
+                </div>
+            `).join('');
+
+            // Render Recent Point Ledger Activity
+            const recentPointsContainer = document.getElementById('recent-points-list');
+            recentPointsContainer.innerHTML = dbPointTransactions.slice(-3).reverse().map(tx => {
+                const member = getMemberByCodeOrId(tx.member_id);
+                const isPositive = tx.transaction_type === 'EARN' || tx.transaction_type === 'ADJUSTMENT';
+                return `
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 font-mono">
+                        <div>
+                            <span class="text-xs text-slate-800 font-semibold block">${member ? member.full_name : 'Unknown'}</span>
+                            <span class="text-[10px] text-slate-400">${tx.description}</span>
+                        </div>
+                        <span class="text-xs font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">
+                            ${isPositive ? '+' : '-'}${tx.points} pts
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderMembersTable() {
+            const tbody = document.getElementById('members-table-body');
+            tbody.innerHTML = dbMembers.map(m => {
+                const referrer = getMemberByCodeOrId(m.referrer_id);
+                const points = calculateMemberPoints(m.id);
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-4 font-bold text-amber-600">${m.member_code}</td>
+                        <td class="py-3 px-4 font-sans font-semibold text-slate-900">${m.full_name}</td>
+                        <td class="py-3 px-4 text-slate-500">${m.phone}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 border border-slate-200 text-slate-700">${m.role}</span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-500 font-sans">${referrer ? referrer.full_name + ' (' + referrer.member_code + ')' : '<span class="text-slate-300">-</span>'}</td>
+                        <td class="py-3 px-4 font-bold text-slate-800">${points} pts</td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-sans font-medium text-emerald-600">
+                                <span class="status-dot status-active"></span>
+                                ${m.status}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="quickAddPoints('${m.id}')" class="text-amber-600 hover:text-amber-700 font-sans font-bold text-[11px]">
+                                + Add Points
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterMembersTable() {
+            const query = document.getElementById('member-search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#members-table-body tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function renderPointLedgerTable() {
+            const tbody = document.getElementById('point-ledger-table-body');
+            tbody.innerHTML = dbPointTransactions.slice().reverse().map(tx => {
+                const member = getMemberByCodeOrId(tx.member_id);
+                let rowClass = 'ledger-row-earn';
+                let typeColor = 'text-emerald-600 bg-emerald-50';
+                
+                if (tx.transaction_type === 'DEDUCTION') {
+                    rowClass = 'ledger-row-deduct';
+                    typeColor = 'text-rose-600 bg-rose-50';
+                } else if (tx.transaction_type === 'ADJUSTMENT') {
+                    rowClass = 'ledger-row-adjust';
+                    typeColor = 'text-blue-600 bg-blue-50';
+                } else if (tx.transaction_type === 'REVERSAL') {
+                    rowClass = 'ledger-row-reverse';
+                    typeColor = 'text-amber-600 bg-amber-50';
+                }
+
+                return `
+                    <tr class="${rowClass} hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 text-slate-400 text-[11px]">${tx.created_at}</td>
+                        <td class="py-3 px-4 font-bold text-slate-800">${member ? member.full_name + ' (' + member.member_code + ')' : tx.member_id}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${typeColor}">${tx.transaction_type}</span>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-slate-900">${tx.points} pts</td>
+                        <td class="py-3 px-4 text-slate-500">${tx.rule_code || 'N/A'}</td>
+                        <td class="py-3 px-4 text-slate-600 font-sans">${tx.description}</td>
+                        <td class="py-3 px-4 text-slate-400 text-[11px]">${tx.created_by}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderReferralsView() {
+            const listContainer = document.getElementById('referral-relationship-list');
+            const treeContainer = document.getElementById('referral-tree-visual');
+
+            const referredMembers = dbMembers.filter(m => m.referrer_id);
+
+            listContainer.innerHTML = referredMembers.map(m => {
+                const referrer = getMemberByCodeOrId(m.referrer_id);
+                return `
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-slate-900 font-bold font-sans">${m.full_name} (${m.member_code})</span>
+                            <span class="text-[10px] text-slate-400 block font-sans">កាលបរិច្ឆេទ: ${m.registered_at}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-slate-400 block font-sans">ណែនាំដោយ</span>
+                            <span class="text-amber-600 font-bold font-sans">${referrer ? referrer.full_name : 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Simple Visual Hierarchy Builder
+            const leaders = dbMembers.filter(m => m.role === 'ADMIN' || m.role === 'LEADER');
+            treeContainer.innerHTML = leaders.map(leader => {
+                const directDownlines = dbMembers.filter(m => m.referrer_id === leader.id);
+                return `
+                    <div class="bg-slate-800 p-3.5 rounded-xl border border-slate-700">
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-2">
+                            <span class="text-amber-400 font-bold font-sans text-xs">${leader.full_name} (${leader.member_code})</span>
+                            <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded">${leader.role}</span>
+                        </div>
+                        <div class="pl-4 space-y-1.5 border-l-2 border-amber-500/40 ml-2">
+                            ${directDownlines.length > 0 ? directDownlines.map(d => `
+                                <div class="text-slate-300 text-xs font-sans flex items-center gap-2">
+                                    <i class="fa-solid fa-angle-right text-amber-500 text-[10px]"></i>
+                                    <span>${d.full_name} (${d.member_code}) - <span class="text-slate-400 text-[10px]">${d.role}</span></span>
+                                </div>
+                            `).join('') : '<span class="text-slate-500 text-[10px] italic font-sans">គ្មានសមាជិកក្រោមបង្គាប់</span>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAuditLogsTable() {
+            const tbody = document.getElementById('audit-logs-table-body');
+            tbody.innerHTML = dbAuditLogs.slice().reverse().map(log => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-2.5 px-4 text-slate-400">${log.timestamp}</td>
+                    <td class="py-2.5 px-4 font-bold text-slate-800">${log.user}</td>
+                    <td class="py-2.5 px-4 text-amber-600 font-bold">${log.action}</td>
+                    <td class="py-2.5 px-4 text-slate-600">${log.entity_type}</td>
+                    <td class="py-2.5 px-4 text-slate-400">${log.entity_id}</td>
+                    <td class="py-2.5 px-4 text-slate-700 font-sans">${log.new_value}</td>
+                </tr>
+            `).join('');
+        }
+
+        function populateSelectOptions() {
+            const regSelect = document.getElementById('reg-referrer');
+            const ptSelect = document.getElementById('pt-member');
+
+            const optionsHTML = dbMembers.map(m => `
+                <option value="${m.id}">${m.full_name} (${m.member_code}) - ${m.role}</option>
+            `).join('');
+
+            regSelect.innerHTML = '<option value="">-- គ្មានអ្នកណែនាំ (Direct Join) --</option>' + optionsHTML;
+            ptSelect.innerHTML = optionsHTML;
+        }
+
+        // Action Handlers
+        function openRegisterModal() {
+            populateSelectOptions();
+            document.getElementById('modal-register-member').classList.remove('hidden');
+        }
+
+        function openPointTransactionModal() {
+            populateSelectOptions();
+            document.getElementById('modal-point-transaction').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function handleMemberRegistration(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('reg-fullname').value;
+            const phone = document.getElementById('reg-phone').value;
+            const role = document.getElementById('reg-role').value;
+            const referrerId = document.getElementById('reg-referrer').value || null;
+
+            // Generate MSN ID Sequential Format MSN-00000X
+            const nextIdNumber = dbMembers.length + 1;
+            const memberCode = `MSN-${String(nextIdNumber).padStart(6, '0')}`;
+            const newUuid = `uuid-${Date.now()}`;
+            const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+            const newMember = {
+                id: newUuid,
+                member_code: memberCode,
+                full_name: fullName,
+                phone: phone,
+                role: role,
+                referrer_id: referrerId,
+                status: "ACTIVE",
+                registered_at: timestamp
+            };
+
+            dbMembers.push(newMember);
+
+            // Auto Grant Initial Registration Point (RULE-001)
+            const newPt = {
+                id: `pt-${Date.now()}`,
+                member_id: newUuid,
+                rule_code: "RULE-001",
+                transaction_type: "EARN",
+                points: 10,
+                description: "Initial Member Registration",
+                created_by: "Admin-001",
+                created_at: timestamp
+            };
+            dbPointTransactions.push(newPt);
+
+            // Create Audit Log
+            dbAuditLogs.push({
+                id: `log-${Date.now()}`,
+                timestamp: timestamp,
+                user: "Admin-001",
+                action: "CREATE_MEMBER",
+                entity_type: "MEMBERS",
+                entity_id: newUuid,
+                new_value: `Created ${memberCode} (${fullName}), Initial +10 Points Granted`
+            });
+
+            saveDatabase();
+            renderAllViews();
+            closeModal('modal-register-member');
+            document.getElementById('form-register-member').reset();
+            alert(`បានចុះឈ្មោះសមាជិកជោគជ័យ! MSN Member ID គឺ៖ ${memberCode}`);
+        }
+
+        function handlePointTransaction(e) {
+            e.preventDefault();
+            const memberId = document.getElementById('pt-member').value;
+            const type = document.getElementById('pt-type').value;
+            const points = parseInt(document.getElementById('pt-points').value);
+            const ruleCode = document.getElementById('pt-rule').value;
+            const desc = document.getElementById('pt-desc').value;
+            const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+            const newPt = {
+                id: `pt-${Date.now()}`,
+                member_id: memberId,
+                rule_code: ruleCode,
+                transaction_type: type,
+                points: points,
+                description: desc,
+                created_by: "Admin-001",
+                created_at: timestamp
+            };
+
+            dbPointTransactions.push(newPt);
+
+            const member = getMemberByCodeOrId(memberId);
+            dbAuditLogs.push({
+                id: `log-${Date.now()}`,
+                timestamp: timestamp,
+                user: "Admin-001",
+                action: "POINT_TRANSACTION",
+                entity_type: "POINT_TRANSACTIONS",
+                entity_id: newPt.id,
+                new_value: `${type} ${points} pts to ${member ? member.member_code : memberId}`
+            });
+
+            saveDatabase();
+            renderAllViews();
+            closeModal('modal-point-transaction');
+            document.getElementById('form-point-transaction').reset();
+        }
+
+        function quickAddPoints(memberId) {
+            openPointTransactionModal();
+            document.getElementById('pt-member').value = memberId;
+        }
     </script>
-    <script src="ultra_secure_mode.js"></script>
 </body>
 </html>
